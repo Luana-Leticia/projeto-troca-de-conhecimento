@@ -1,4 +1,6 @@
 const bcrypt = require('bcrypt');
+const helper = require('../helpers/generateToken');
+
 const Account = require('../models/accountSchema');
 
 const authenticate = async (request, response) => {
@@ -13,7 +15,11 @@ const authenticate = async (request, response) => {
         return response.status(400).json({ message: "Senha inválida." });
     }
 
-    response.status(200).json({ message: "Bem vindo." });
+    account.password = undefined;
+
+    const token = helper.generateToken({ id: account.id });
+
+    response.status(200).json({ message: "Bem vindo.", token: token });
 }
 
 module.exports = {
