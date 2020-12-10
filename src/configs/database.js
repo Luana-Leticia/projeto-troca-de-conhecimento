@@ -7,7 +7,8 @@ const connect = () => {
     mongoose.connect(MONGO_URI, { 
         useNewUrlParser: true,
         useUnifiedTopology: true,
-        useFindAndModify: false
+        useFindAndModify: false,
+        useCreateIndex: true
     });
     const connection = mongoose.connection;
     connection.on('error', () => console.log('Erro ao conectar ao MongoDB.'));

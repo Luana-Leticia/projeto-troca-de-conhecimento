@@ -1,11 +1,21 @@
 const Account = require('../models/accountSchema');
 
-const add = (request, response) => {
-    const { name, email, password } = request.body;
-    const newAccount = new Account({ name, email, password });
+const add = async (request, response) => {
+    const { username, email, password, passwordConfirmation } = request.body;
+
+    const account = await Account.findOne({ email: email });
+    if (account) {
+        return response.status(400).json({ message: "Email já existe." });
+    }
+
+    if (password != passwordConfirmation) {
+        return response.status(400).json({ message: "Confirmação de senha não confere." });
+    }
+
+    const newAccount = new Account({ username, email, password });
     newAccount.save((error) => {
         if (error) {
-            response.status(400).send(error);
+            response.status(500).send(error);
         } else {
             response.status(200).json({ message: "Conta cadastrada com sucesso." });
         }
@@ -35,6 +45,32 @@ const findById = (request, response) => {
         });
 }
 
+const findByName = (request, response) => {
+    const param = request.params.name;
+    Account.findById(param,
+        (error, account) => {
+            if (error) {
+                response.status(404).json({ message: "Nenhum resultado encontrado." });
+            } else {
+                response.status(200).json(account);
+            }
+        });
+}
+
+const findByDomain = (request, response) => {
+    const { interest } = request.body;
+    Account.find({ domainKnowledges: interest },
+        (error, account) => {
+            if (error) {
+                response.status(500).send(error);
+            } else if (account) {
+                response.status(200).json(account);
+            } else {
+                response.status(404).json({ message: "Nenhum resultado encontrado." });
+            }
+        });
+}
+
 const edit = (request, response) => {
     const param = request.params.id;
     const body = request.body;
@@ -46,7 +82,7 @@ const edit = (request, response) => {
             } else if (account) {
                 response.status(200).json({ message: "Conta alterada com sucesso." });
             } else {
-                response.status(404).json({ message: "ID inválido."});
+                response.status(404).json({ message: "ID inválido." });
             }
         });
 }
@@ -58,9 +94,9 @@ const remove = (request, response) => {
             if (error) {
                 response.status(500).send(error);
             } else if (account) {
-                response.status(200).json({ message: "Conta deletada com sucesso."});
+                response.status(200).json({ message: "Conta deletada com sucesso." });
             } else {
-                response.status(404).json({ message: "ID inválido."});
+                response.status(404).json({ message: "ID inválido." });
             }
         });
 }
@@ -69,6 +105,8 @@ module.exports = {
     add,
     find,
     findById,
+    findByName,
+    findByDomain,
     edit,
     remove
 }

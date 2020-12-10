@@ -7,6 +7,7 @@ const database = require('./configs/database');
 database.connect();
 
 app.use(cors());
+app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true}));
 
 const index = require('./routes/index');

@@ -5,7 +5,9 @@ const controller = require('../controllers/accountController');
 
 router.post('/create', controller.add);
 router.get('/', controller.find);
-router.get('/:id', controller.findById);
+router.get('/id/:id', controller.findById);
+router.get('/name/:name', controller.findByName);
+router.get('/interest/:interest', controller.findByDomain);
 router.put('/edit/:id', controller.edit);
 router.delete('/remove/:id', controller.remove);
 
