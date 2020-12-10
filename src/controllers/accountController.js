@@ -46,25 +46,27 @@ const findById = (request, response) => {
 }
 
 const findByName = (request, response) => {
-    const param = request.params.name;
-    Account.findById(param,
-        (error, account) => {
+    const param = request.params.username;
+    Account.find({ username: param },
+        (error, accounts) => {
             if (error) {
-                response.status(404).json({ message: "Nenhum resultado encontrado." });
+                response.status(500).send(error);
+            } else if (accounts.length > 0) {
+                response.status(200).json(accounts);
             } else {
-                response.status(200).json(account);
+                response.status(404).json({ message: "Nenhum resultado encontrado." });
             }
         });
 }
 
 const findByDomain = (request, response) => {
-    const { interest } = request.body;
-    Account.find({ domainKnowledges: interest },
-        (error, account) => {
+    const param = request.params.interest;
+    Account.find({ domainKnowledges: param },
+        (error, accounts) => {
             if (error) {
                 response.status(500).send(error);
-            } else if (account) {
-                response.status(200).json(account);
+            } else if (accounts.length > 0) {
+                response.status(200).json(accounts);
             } else {
                 response.status(404).json({ message: "Nenhum resultado encontrado." });
             }

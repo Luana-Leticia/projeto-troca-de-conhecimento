@@ -15,7 +15,11 @@ const MeetingSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'Account',
         required: true
-    }]
+    }],
+    topic: {
+        type: String,
+        required: true
+    }
 },
     { timestamps: true });
 
