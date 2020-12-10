@@ -17,7 +17,8 @@ const AccountSchema = new Schema({
         lowercase: true,
         required: true,
         unique: true,
-        maxlength: 50
+        maxlength: 50,
+        select: false
     },
     password: {
         type: String,
@@ -41,26 +42,31 @@ const AccountSchema = new Schema({
     age: {
         type: Number,
         min: 1,
-        max: 120
+        max: 120,
+        select: false
     },
     location: {
         city: { type: String },
         state: { type: String }
     },
     phoneNumber: {
-        type: String
+        type: String,
+        select: false
     },
     classes: [{
         type: Schema.Types.ObjectId,
-        ref: 'Meeting'
+        ref: 'Meeting',
+        select: false
     }],
     invitations: [{
         type: Schema.Types.ObjectId,
-        ref: 'Invitation'
+        ref: 'Invitation',
+        select: false
     }],
     friends: [{
         type: Schema.Types.ObjectId,
-        ref: 'Account'
+        ref: 'Account',
+        select: false
     }]
 },
     { timestamps: true }

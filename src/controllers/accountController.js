@@ -3,7 +3,7 @@ const Account = require('../models/accountSchema');
 const add = async (request, response) => {
     const { username, email, password, passwordConfirmation } = request.body;
 
-    const account = await Account.findOne({ email: email });
+    const account = await Account.findOne({ email: email }).select('+email');
     if (account) {
         return response.status(400).json({ message: "Email já existe." });
     }

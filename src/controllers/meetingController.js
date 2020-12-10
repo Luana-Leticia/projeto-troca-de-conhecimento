@@ -2,7 +2,7 @@ const Meeting = require('../models/meetingSchema');
 
 const add = (request, response) => {
     const { date, participants, topic } = request.body;
-    
+
     const newMeeting = new Meeting({ date, participants, topic });
     newMeeting.save((error) => {
         if (error) {
@@ -40,12 +40,58 @@ const findById = (request, response) => {
 
 const findByTopic = (request, response) => {
     const param = request.params.topic;
-    Account.find({ topic: param },
+    Meeting.find({ topic: param },
+        (error, meetings) => {
+            if (error) {
+                response.status(500).send(error);
+            } else if (meetings.length > 0) {
+                response.status(200).json(meetings);
+            } else {
+                response.status(404).json({ message: "Nenhum resultado encontrado." });
+            }
+        });
+}
+
+const findByDate = (request, response) => {
+    const param = request.params.date;
+    Meeting.find({ date: param },
+        (error, meetings) => {
+            if (error) {
+                response.status(500).send(error);
+            } else if (meetings.length > 0) {
+                response.status(200).json(meetings);
+            } else {
+                response.status(404).json({ message: "Nenhum resultado encontrado." });
+            }
+        });
+}
+
+const edit = (request, response) => {
+    const param = request.params.id;
+    const body = request.body;
+    const option = { new: true };
+    Meeting.findByIdAndUpdate(param, body, option,
         (error, meeting) => {
             if (error) {
-                response.status(404).json({ message: "Nenhum resultado encontrado." });
+                response.status(500).send(error);
+            } else if (meeting) {
+                response.status(200).json({ message: "Reunião editada com sucesso." });
             } else {
-                response.status(200).json(meeting);
+                response.status(404).json({ message: "ID inválido." });
+            }
+        });
+}
+
+const remove = (request, response) => {
+    const param = request.params.id;
+    Meeting.findByIdAndDelete(param,
+        (error, meeting) => {
+            if (error) {
+                response.status(500).send(error);
+            } else if (meeting) {
+                response.status(200).json({ message: "Reunião desmarcada com sucesso." });
+            } else {
+                response.status(404).json({ message: "ID inválido." });
             }
         });
 }
@@ -53,5 +99,9 @@ const findByTopic = (request, response) => {
 module.exports = {
     add,
     find,
-    findById
+    findById,
+    findByTopic,
+    findByDate,
+    edit,
+    remove
 }
