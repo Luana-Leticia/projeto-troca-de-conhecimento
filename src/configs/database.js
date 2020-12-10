@@ -6,7 +6,8 @@ const MONGO_URI = process.env.MONGO_URI;
 const connect = () => {
     mongoose.connect(MONGO_URI, { 
         useNewUrlParser: true,
-        useUnifiedTopology: true
+        useUnifiedTopology: true,
+        useFindAndModify: false
     });
     const connection = mongoose.connection;
     connection.on('error', () => console.log('Erro ao conectar ao MongoDB.'));

@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 
 const AccountSchema = new Schema({
     _id: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: Schema.Types.ObjectId,
         auto: true,
         required: true
     },
@@ -45,6 +45,24 @@ const AccountSchema = new Schema({
     },
     phoneNumber: {
         type: String
+    },
+    classes: {
+        type: [{
+            type: Schema.Types.ObjectId,
+            ref: 'class'
+        }]
+    },
+    invitations: {
+        type: [{
+            type: Schema.Types.ObjectId,
+            ref: 'account'
+        }]
+    },
+    friends: {
+        type: [{
+            type: Schema.Types.ObjectId,
+            ref: 'account'
+        }]
     }
 });
 
