@@ -39,40 +39,53 @@ const add = async (request, response) => {
 
 const find = async (request, response) => {
     const accountId = request.accountId;
-    const account = await Account.findById(accountId).select('meetings').populate('meetings');
-
-    if (account.meetings.length > 0) {
-        response.status(200).send(account.meetings);
-    } else {
-        response.status(404).json(
-            { message: "Sem reuniões marcadas." });
-    }
+    await Account.findById(accountId,
+        async (error, account) => {
+            if (account.meetings.length == 0) {
+                response.status(404).json(
+                    { message: "Sem reuniões marcadas." });
+                
+            } else {
+                const meetingsIds = [...account.meetings];
+                await Meeting.find({ _id: meetingsIds },
+                    
+                    (error, meetings) => {
+                        response.status(200).send({ meetings: meetings });
+                    }).populate({
+                        path: 'participants',
+                        select: '_id username'
+                    });
+            }
+        }
+    ).select('+meetings');
 }
 
-const findByTopic = (request, response) => {
+const findByTopic = async (request, response) => {
     const accountId = request.accountId;
     const param = request.params.topic;
-    Account.findById(accountId,
-        (error, account) => {
-            if (error) {
-                response.status(500).send(error);
-            } else if (!account.meetings.length > 0) {
+    await Account.findById(accountId,
+        async (error, account) => {
+            if (!account.meetings.length > 0) {
                 response.status(404).json({
                     message: "Sem reuniões marcadas."
                 });
             } else {
-                const meetings = account.meetings;
-                const matchedMeetings = meetings.filter(
-                    meeting => meeting.topic == param);
-                if (matchedMeetings.length > 0) {
-                    response.status(200).json(matchedMeetings);
-                }
-                response.status(404).json({
-                    message: "Nenhum resultado encontrado."
-                });
+                const meetingsIds = [...account.meetings];
+                await Meeting.find({ _id: meetingsIds },
+                    (error, meetings) => {
+                        const userMeetings = [...meetings];
+                        const matchedMeetings = userMeetings.filter(meeting => meeting.topic = param);
+                        if (matchedMeetings.length == 0) {
+                            response.status(404).json({ message: "Nenhum resultado encontrado."});
+                        }
 
+                        response.status(200).send({ meetings: matchedMeetings });
+                    }).populate({
+                        path: 'participants',
+                        select: '_id username'
+                    });
             }
-        }).select('meetings').populate('meetings');
+        }).select('+meetings');
 }
 
 const edit = async (request, response) => {

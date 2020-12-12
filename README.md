@@ -215,7 +215,7 @@ Para todos os recursos, vai ser pedido a autenticação do usuário, que é feit
         "domainKnowledges": ['ingles', 'portugues'],
         "friends": [],
         "_id": "5fd26b1ace05020b280d8a55",
-        "classes": [],
+        "meetings": [],
         "username": "Valentina Silva",
         "createdAt": "2020-12-10T18:38:18.305Z",
         "updatedAt": "2020-12-10T18:38:18.305Z",
@@ -226,7 +226,7 @@ Para todos os recursos, vai ser pedido a autenticação do usuário, que é feit
         "domainKnowledges": ['calculo', 'fisica'],
         "friends": [],
         "_id": "5fd27adc7a4b331df411d042",
-        "classes": [],
+        "meetings": [],
         "username": "Valentina Santos",
         "createdAt": "2020-12-10T19:45:33.007Z",
         "updatedAt": "2020-12-11T11:53:35.992Z",
@@ -324,20 +324,24 @@ Para todos os recursos, vai ser pedido a autenticação do usuário, que é feit
     "meetings": [
         {
             "participants": [
-                "5fd3a058e114ea269c36ffbe",
-                "5fd3a072e114ea269c36ffbf"
+                {
+                    "_id": "5fd3a058e114ea269c36ffbe",
+                    "username": "luana leticia"
+                },
+                {
+                    "_id": "5fd3a072e114ea269c36ffbf",
+                    "username": "Vanessa Carolayne"
+                }
             ],
-            "_id": "5fd3a144e114ea269c36ffc0",
+            "_id": "5fd409f3a2cede238ce6c3d4",
             "date": "2020-12-16T03:00:00.000Z",
             "topic": "fisica",
-            "createdAt": "2020-12-11T16:41:40.710Z",
-            "updatedAt": "2020-12-11T16:41:40.710Z",
+            "createdAt": "2020-12-12T00:08:19.903Z",
+            "updatedAt": "2020-12-12T00:08:19.903Z",
             "__v": 0
         }
-    ],
-    "_id": "5fd3a058e114ea269c36ffbe"
+    ]
 }
-
 ```
 
 | Método 	| Recurso 	| Descrição 	|
@@ -351,18 +355,28 @@ Para todos os recursos, vai ser pedido a autenticação do usuário, que é feit
 - **Saída:**
 
 ```javascript
-[{
+{
+    "meetings": [
+        {
             "participants": [
-                "5fd3a058e114ea269c36ffbe",
-                "5fd3a072e114ea269c36ffbf"
+                {
+                    "_id": "5fd3a058e114ea269c36ffbe",
+                    "username": "luana leticia"
+                },
+                {
+                    "_id": "5fd3a072e114ea269c36ffbf",
+                    "username": "Vanessa Carolayne"
+                }
             ],
-            "_id": "5fd3a144e114ea269c36ffc0",
+            "_id": "5fd409f3a2cede238ce6c3d4",
             "date": "2020-12-16T03:00:00.000Z",
             "topic": "fisica",
-            "createdAt": "2020-12-11T16:41:40.710Z",
-            "updatedAt": "2020-12-11T16:41:40.710Z",
+            "createdAt": "2020-12-12T00:08:19.903Z",
+            "updatedAt": "2020-12-12T00:08:19.903Z",
             "__v": 0
-}]
+        }
+    ]
+}
 ```
 
 | Método 	| Recurso 	| Descrição 	|
