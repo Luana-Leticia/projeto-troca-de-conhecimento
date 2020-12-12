@@ -1,25 +1,36 @@
-const bcrypt = require('bcrypt');
-const helper = require('../helpers/generateToken');
+const jwt = require('jsonwebtoken');
+const dotenv = require('dotenv');
+dotenv.config();
 
-const Account = require('../models/accountSchema');
+const authenticate = (request, response, next) => {
+    const authHeader = request.header('Authorization');
+    
+    if (!authHeader) {
+        response.status(401).json({ message: "Token não fornecido." });
+    }
+    const parts = authHeader.split(' ');
 
-const authenticate = async (request, response) => {
-    const { email, password } = request.body;
-
-    const account = await Account.findOne({ email: email }).select(['+email', '+password']);
-    if (!account) {
-        return response.status(400).json({ message: "Email inválido." });
+    if (!parts.length == 2) {
+        response.status(401).json({ message: "Erro no token." });
     }
 
-    if (!await bcrypt.compare(password, account.password)) {
-        return response.status(400).json({ message: "Senha inválida." });
+    const [ scheme, token ] = parts;
+
+    if(!/^Bearer$/i.test(scheme)) {
+        response.status(401).json({ message: "Token mal realizado." });
     }
 
-    account.password = undefined;
+    const secretKey = process.env.SECRET_KEY;
+    jwt.verify(token, secretKey, 
+        (error, decoded) => {
+            if (error) {
+                response.status(400).json( { message: "Token inválido."});
+            }
 
-    const token = helper.generateToken({ id: account.id });
+            request.accountId = decoded.id;
 
-    response.status(200).json({ message: "Bem vindo.", token: token });
+            return next();
+    });
 }
 
 module.exports = {

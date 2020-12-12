@@ -1,107 +1,160 @@
 const Meeting = require('../models/meetingSchema');
+const Account = require('../models/accountSchema');
 
-const add = (request, response) => {
-    const { date, participants, topic } = request.body;
+const add = async (request, response) => {
+    const accountId = request.accountId;
+    const { otherAccountId } = request.params;
+    const { date, topic } = request.body;
+    const participants = [accountId, otherAccountId];
+    const option = { new: true };
 
     const newMeeting = new Meeting({ date, participants, topic });
-    newMeeting.save((error) => {
+    await newMeeting.save(async (error) => {
         if (error) {
             response.status(500).send(error);
         } else {
-            response.status(200).json({ message: "Reunião marcada com sucesso." });
+            Account.findByIdAndUpdate(accountId,
+                { $push: { meetings: newMeeting._id } },
+                option,
+                (error, account) => {
+                    if (error) {
+                        response.status(500).send(error);
+                    }
+                }
+            );
+            Account.findByIdAndUpdate(otherAccountId,
+                { $push: { meetings: newMeeting._id } },
+                option,
+                (error, account) => {
+                    if (error) {
+                        response.status(500).send(error);
+                    }
+                }
+            );
+            response.status(200).json(
+                { message: "Reunião marcada com sucesso." });
         }
     });
 }
 
-const find = (request, response) => {
-    Meeting.find(
-        (error, meeting) => {
-            if (error) {
-                response.status(500).json(error);
-            } else {
-                response.status(200).send(meeting);
-            }
-        }
-    )
-}
+const find = async (request, response) => {
+    const accountId = request.accountId;
+    const account = await Account.findById(accountId).select('meetings').populate('meetings');
 
-const findById = (request, response) => {
-    const param = request.params.id;
-    Meeting.findById(param,
-        (error, meeting) => {
-            if (error) {
-                response.status(404).json({ message: "ID inválido" });
-            } else {
-                response.status(200).json(meeting);
-            }
-        });
+    if (account.meetings.length > 0) {
+        response.status(200).send(account.meetings);
+    } else {
+        response.status(404).json(
+            { message: "Sem reuniões marcadas." });
+    }
 }
-
 
 const findByTopic = (request, response) => {
+    const accountId = request.accountId;
     const param = request.params.topic;
-    Meeting.find({ topic: param },
-        (error, meetings) => {
+    Account.findById(accountId,
+        (error, account) => {
             if (error) {
                 response.status(500).send(error);
-            } else if (meetings.length > 0) {
-                response.status(200).json(meetings);
+            } else if (!account.meetings.length > 0) {
+                response.status(404).json({
+                    message: "Sem reuniões marcadas."
+                });
             } else {
-                response.status(404).json({ message: "Nenhum resultado encontrado." });
+                const meetings = account.meetings;
+                const matchedMeetings = meetings.filter(
+                    meeting => meeting.topic == param);
+                if (matchedMeetings.length > 0) {
+                    response.status(200).json(matchedMeetings);
+                }
+                response.status(404).json({
+                    message: "Nenhum resultado encontrado."
+                });
+
             }
-        });
+        }).select('meetings').populate('meetings');
 }
 
-const findByDate = (request, response) => {
-    const param = request.params.date;
-    Meeting.find({ date: param },
-        (error, meetings) => {
-            if (error) {
-                response.status(500).send(error);
-            } else if (meetings.length > 0) {
-                response.status(200).json(meetings);
-            } else {
-                response.status(404).json({ message: "Nenhum resultado encontrado." });
-            }
-        });
-}
-
-const edit = (request, response) => {
-    const param = request.params.id;
+const edit = async (request, response) => {
+    const accountId = request.accountId;
+    const meetingId = request.params.meetingId;
     const body = request.body;
     const option = { new: true };
-    Meeting.findByIdAndUpdate(param, body, option,
-        (error, meeting) => {
+
+    await Account.findById(accountId,
+        async (error, account) => {
             if (error) {
                 response.status(500).send(error);
-            } else if (meeting) {
-                response.status(200).json({ message: "Reunião editada com sucesso." });
-            } else {
-                response.status(404).json({ message: "ID inválido." });
             }
-        });
+            if (account.meetings.find(id => id == meetingId)) {
+
+                await Meeting.findByIdAndUpdate(meetingId,
+                    { $set: body },
+                    option,
+                    async (error, meeting) => {
+                        if (error) {
+                            response.status(500).send(error);
+                        } else if (meeting) {
+                            response.status(200).json({
+                                message: "Reunião editada com sucesso."
+                            });
+                        }
+                    });
+            }
+
+            response.status(404).json({
+                message: "Reunião não encontrada."
+            });
+
+        }).select('meetings');
 }
 
-const remove = (request, response) => {
-    const param = request.params.id;
-    Meeting.findByIdAndDelete(param,
-        (error, meeting) => {
+const remove = async (request, response) => {
+    const accountId = request.accountId;
+    const meetingId = request.params.meetingId;
+
+    await Account.findById(accountId,
+        async (error, account) => {
             if (error) {
                 response.status(500).send(error);
-            } else if (meeting) {
-                response.status(200).json({ message: "Reunião desmarcada com sucesso." });
-            } else {
-                response.status(404).json({ message: "ID inválido." });
             }
-        });
+            const meeting = account.meetings.find(
+                (meeting) => meeting.id == meetingId)
+            if (meeting) {
+                meeting.participants.forEach(async (participantId) => {
+                    await Account.findByIdAndUpdate(
+                        participantId,
+                        {
+                            $pull: {
+                                meetings: meetingId
+                            }
+                        }).select('meetings');
+                })
+
+                await Meeting.findByIdAndDelete(meetingId,
+                    async (error, meeting) => {
+                        if (error) {
+                            response.status(500).send(error);
+                        } else if (meeting) {
+                            response.status(200).json(
+                                {
+                                    message: "Reunião deletada com sucesso."
+                                });
+                        }
+                    });
+            }
+
+            return response.status(404).json(
+                { message: "Reunião não encontrada." });
+
+        }).select('meetings').populate('meetings');
 }
+
 
 module.exports = {
     add,
     find,
-    findById,
     findByTopic,
-    findByDate,
     edit,
     remove
 }

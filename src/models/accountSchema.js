@@ -29,14 +29,20 @@ const AccountSchema = new Schema({
     learningInterests: [String],
     domainKnowledges: [String],
     timeAvailability: {
-        weekDay: {
-            type: String,
-            lowercase: true,
-            enum: ['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado']
-        },
-        periods: [String]
+        type: [{
+            weekDay: {
+                type: String,
+                lowercase: true,
+                enum: ['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado']
+            },
+            periods: {
+                type: [String],
+                lowercase: true
+            }
+        }],
+        select: false
     },
-    foto_url: {
+    photo_url: {
         type: String
     },
     age: {
@@ -53,26 +59,31 @@ const AccountSchema = new Schema({
         type: String,
         select: false
     },
-    classes: [{
-        type: Schema.Types.ObjectId,
-        ref: 'Meeting',
+    meetings: {
+        type: [{
+            type: Schema.Types.ObjectId,
+            ref: 'Meeting'
+        }],
         select: false
-    }],
-    invitations: [{
-        type: Schema.Types.ObjectId,
-        ref: 'Invitation',
+    },
+    invitations: {
+        type: [{
+            type: Schema.Types.ObjectId,
+            ref: 'Invitation'
+        }],
         select: false
-    }],
-    friends: [{
-        type: Schema.Types.ObjectId,
-        ref: 'Account',
-        select: false
-    }]
+    },
+    friends: {
+        type: [{
+            type: Schema.Types.ObjectId,
+            ref: 'Account'
+        }]
+    }
 },
     { timestamps: true }
 );
 
-AccountSchema.pre('save', async function(next) {
+AccountSchema.pre('save', async function (next) {
     const hash = await bcrypt.hash(this.password, 10);
     this.password = hash;
 
