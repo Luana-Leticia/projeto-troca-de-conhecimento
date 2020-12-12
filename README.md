@@ -98,7 +98,13 @@ E então só preencher com os recursos desejados.
 1. Todos endpoints serão da forma: **<https://trocaconhecimento.herokuapp.com>/recurso**.
 Ou, se for localmente, será: **http://localhost:PORTA/recurso**
 
-2. Os parâmetros das requisições são passados pela url da requisição e o corpo das requisições podem ser passados por formulário HTTP (no caso o x-www-urlencoded) ou JSON. É preciso configurar isso na interface (Postman, Insomnia ou outro). O formato de JSON será usado nos exemplos da documentação, mas a forma .
+2. Os parâmetros das requisições são passados pela url da requisição e o corpo das requisições podem ser passados por formulário HTTP (no caso o x-www-urlencoded) ou JSON. É preciso configurar isso na interface (Postman, Insomnia ou outro). O formato de JSON será usado nos exemplos da documentação, mas a forma por formulário segue o padrão (exemplo do Postman):
+
+![Corpo de requisição no Postman](assets/fig1.png)
+
+Para todos os recursos, vai ser pedido a autenticação do usuário, que é feita por meio do token recebido ao criar conta ou entrar na conta. Deverá ser preenchido o campo de authorização no header, como abaixo, independentemente de usar JSON ou forms
+.
+![Corpo de cabeçalho no Postman](assets/fig2.png)
 
 ### Endpoints da nossa API:
  
