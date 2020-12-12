@@ -36,6 +36,13 @@ router.get('/username/:username', auth.authenticate, controller.findByName);
 //@endpoint http://localhost:port/account/interest/:interest
 router.get('/interest/:interest', auth.authenticate, controller.findByDomain);
 
+//@route GET account
+//@params :interest :domain
+//@desc Return accounts that match with user interests
+//@acess Private
+//@endpoint http://localhost:port/account/interest/:interest/domain/:domain
+router.get('/interest/:interest/domain/:domain', auth.authenticate, controller.match);
+
 //@route PUT account
 //desc Update account
 //access Private

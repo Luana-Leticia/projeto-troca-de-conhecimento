@@ -86,6 +86,20 @@ const findByDomain = (request, response) => {
         }).populate('friends');
 }
 
+const match = (request, response) => {
+    const { interest, domain } = request.params;
+    Account.find({ domainKnowledges: interest, learningInterests: domain },
+        (error, accounts) => {
+            if (error) {
+                response.status(500).send(error);
+            } else if (accounts.length > 0) {
+                response.status(200).json(accounts);
+            } else {
+                response.status(404).json({ message: "Nenhum resultado encontrado." });
+            }
+        }).populate('friends');
+}
+
 const edit = async (request, response) => {
     const param = request.accountId;
     const body = request.body;
@@ -123,6 +137,7 @@ module.exports = {
     viewAccount,
     findByName,
     findByDomain,
+    match,
     edit,
     remove
 }
